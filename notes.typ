@@ -1,9 +1,4 @@
-#import "@preview/theorion:0.4.1": *
-#show: show-theorion
-
-#let of = $op(circle.small)$
-#let dom = $op("dom")$
-#let cod = $op("cod")$
+#import "header.typ": *
 
 = Elementary Category Theory and Univalent Foundations
 Lecture Note 1 \
@@ -22,11 +17,13 @@ Hopefully, if you're in this class, you've heard of at least one of these mathem
   - Sets: functions
   - Groups: group homomorphisms
   - Rings: ring homomorphisms
+  - Vector spaces: linear map
   - Topological spaces: continuous functions
 - There is some notion of "equality" between pairs of objects:
   - Sets: bijections
   - Groups: group isomorphisms
   - Rings: ring isomorphisms
+  - Vector spaces: vector space isomorphisms
   - Topological spaces: homeomorphisms
 
 Category theory provides a general way to think about all of these classes of objects at once. It is extremely useful in algebraic geometry and algebraic topology, and a few applications have been found outside of math, as we will see later in the course.
@@ -43,4 +40,11 @@ Category theory provides a general way to think about all of these classes of ob
   - (Associativity) If $f : A -> B$, $g : B -> C$, and $h : C -> D$, then $(h of g) of f = h of (g of f)$.
 ]]
 
-== TODO write more sections
+#example[
+  The following are examples of categories:
+  - $Set$
+  - $Grp$
+  - $Ring$
+  - $Vect$
+  - $Top$
+]
