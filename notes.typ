@@ -1,9 +1,30 @@
+#import "@preview/theorion:0.4.1": *
 #import "header.typ": *
+#show: show-theorion
 
 = Elementary Category Theory and Univalent Foundations
 Lecture Note 1 \
 Jan 12, 2026 \
 Max Misterka
+
+== Tentative Schedule
+- Week 1 (Jan 12 - Jan 16):
+  - Jan 12: Intro to Category Theory
+  - Jan 13: Important Results (incl. Yoneda Lemma) and More Constructions
+  - Jan 14: Enriched and Higher Category Theory
+  - Jan 15: Intro to Algebraic Topology and Homological Algebra
+  - Jan 16: ??? (potentially canceled)
+- Weeks 2 and 3 (Jan 19 - Jan 23, Jan 26 - Jan 29, probably no lecture Jan 30)
+  - Will mostly consist of special topics and applications (order TBD), probably including:
+    - Category Theory in Haskell
+    - Category Theory in Deep Learning
+    - Intro to Topos Theory / Toquos Theory
+    - Intro to Homotopy Type Theory
+    - David Spivak's ideas
+- Recommended problem sets
+  - One per week
+  - One or two problems (some with multiple parts) from each lecture
+  - Problems relating to a lecture will be released later that day
 
 == What is Category Theory?
 Consider the following mathematical objects:
@@ -45,6 +66,52 @@ Category theory provides a general way to think about all of these classes of ob
   - $Set$
   - $Grp$
   - $Ring$
-  - $Vect$
+  - $K"-"#h(-0.1em)Vect$, for a field $K$
   - $Top$
+  - $Trivial$
+  - $G$, for any group $G$, with one object
 ]
+
+*TODO: WRITE MORE ABOUT THESE CATEGORIES*
+
+== Isomorphism
+
+How can we generalize the idea of two sets, groups, etc. being isomorphic? Ideally we would define a notion of isomorphism between pairs of objects in a category $C$. This means that we need to state isomorphism purely in terms of the morphisms between sets, groups, etc., ignoring their set-theoretic elements. This can be done using inverse maps.
+
+#definition(title: "isomorphism")[#emph[
+  Two objects $A$ and $B$ in the object set of a category $C$ are isomorphic if there are morphisms $f : A -> B$ and $g : B -> A$ such that $f of g = 1_B$ and $g of f = 1_A$.
+]]
+
+This is the first example of a recurring trend: we will try to state many important properties of objects like sets, groups, rings, etc. using purely functions and function composition, while ignoring elements.
+
+== Other Universal Constructions
+
+- Products
+
+#image("images/product.png")
+
+- Coproducts (duality)
+- Initial objects and terminal objects
+  - Initial: for every $X$ there is a unique morphism $I -> X$
+- Equalizer (kernel of difference)
+
+#image("images/equalizer.png")
+
+- Tensor products (groups, rings, and vector spaces)
+
+#image("images/tensor_product.png")
+
+*TODO: note that all of these constructions are unique up to isomorphism*
+
+*TODO: introduce functors, $Cat$, and opposite categories*
+
+== Exercises
+
+All of the exercises require answering with a proof for a fully complete answer.
+
+- Do all categories have at least one product?
+- Do all pairs of objects in $Set$ have a coproduct? If so, what is it?
+  - What about in $Grp$?
+  - What about in $K"-"#h(-0.1em)Vect$?
+  - What about in $Nat$? What about in the opposite category of $Nat$?
+- Is $K"-"#h(-0.1em)Vect$ isomorphic (as an object of $Cat$) to its opposite category?

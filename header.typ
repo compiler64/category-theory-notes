@@ -1,6 +1,3 @@
-#import "@preview/theorion:0.4.1": *
-#show: show-theorion
-
 #show emph: it => {
   if text.style == "normal" {
     text(style: "italic", it.body)
@@ -15,6 +12,10 @@
 #let cat(name) = $op(#text(font: "Libertinus Serif", style: "normal")[#name])$
 #let Set = $cat("Set")$
 #let Grp = $cat("Grp")$
+#let AbGrp = $cat("AbGrp")$
 #let Ring = $cat("Ring")$
 #let Vect = $cat("Vect")$
 #let Top = $cat("Top")$
+#let Nat = $cat("Nat")$
+#let Trivial = $cat("Trivial")$
+#let Cat = $cat("Cat")$
