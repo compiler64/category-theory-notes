@@ -9,12 +9,15 @@ Max Misterka
 == Tentative Schedule
 - Week 1 (Jan 12 - Jan 16):
   - Jan 12: Intro to Category Theory
-  - Jan 13: Important Results (incl. Yoneda Lemma) and More Constructions
-  - Jan 14: Enriched and Higher Category Theory
-  - Jan 15: Intro to Algebraic Topology and Homological Algebra
+  - Jan 13: Lec 1 continued; Universal Properties
+  - Jan 14: Functors; Natural Transformations; Adjoints; Yoneda Lemma
+  - Jan 15: Enriched and Higher Category Theory
   - Jan 16: ??? (potentially canceled)
+
 - Weeks 2 and 3 (Jan 19 - Jan 23, Jan 26 - Jan 29, probably no lecture Jan 30)
-  - Will mostly consist of special topics and applications (order TBD), probably including:
+  - Jan 19: Intro to Algebraic Topology and Homological Algebra
+  
+  - Other lectures will mostly consist of special topics and applications (order TBD), probably including:
     - Category Theory in Haskell
     - Category Theory in Deep Learning
     - Intro to Topos Theory / Toquos Theory
@@ -67,7 +70,7 @@ Category theory provides a general way to think about all of these classes of ob
   - $Ring$
   - $K"-"#h(-0.1em)Vect$, for a field $K$
   - $Top$
-  - $NN$, where there is a unique morphism $a -> b$ when $a < b$
+  - $NN$, where there is a unique morphism $a -> b$ when $a <= b$
   - $Trivial$
   - $G$, for any group $G$, with one object
 ]
@@ -126,7 +129,9 @@ We can now consider categories themselves as objects and functors as morphisms b
 
 All of the exercises require answering with a proof for a fully complete answer.
 
+- Prove that for the category of sets, the map $Q -> S times T$ in the definition of the product is unique.
 - Do all categories have at least one product?
+- In general, what is the equalizer between two linear maps in $K"-"#h(-0.1em)Vect$?
 - Do all pairs of objects in $Set$ have a coproduct? If so, what is it?
   - What about in $Grp$?
   - What about in $K"-"#h(-0.1em)Vect$?
