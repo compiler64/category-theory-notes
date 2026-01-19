@@ -7,26 +7,32 @@ Lecture Notes \
 Max Misterka
 
 == Tentative Schedule
-- Week 1 (Jan 12 - Jan 16):
+- Week 1 (Jan 12 - Jan 15):
   - Jan 12: Intro to Category Theory
   - Jan 13: Lec 1 continued; Universal Properties
-  - Jan 14: Functors; Natural Transformations; Adjoints; Yoneda Lemma
-  - Jan 15: Enriched and Higher Category Theory
-  - Jan 16: ??? (potentially canceled)
+  - Jan 14: Functors and Natural Transformations
+  - Jan 15: Lec 3 continued
+  - Jan 16: canceled due to lecturer availability
 
-- Weeks 2 and 3 (Jan 19 - Jan 23, Jan 26 - Jan 29, probably no lecture Jan 30)
-  - Jan 19: Intro to Algebraic Topology and Homological Algebra
-  
-  - Other lectures will mostly consist of special topics and applications (order TBD), probably including:
-    - Category Theory in Haskell
+- Week 2 (Jan 20 - Jan 23)
+  - Jan 19: canceled due to the holiday (Problem Set 1 will be released!)
+  - Jan 20: Intro to Algebraic Topology and Homological Algebra (including applications of category theory)
+  - Jan 21: Yoneda Lemma; Enriched and Higher Category Theory
+  - Jan 22: TBD
+  - Jan 23: Category Theory in Haskell ("a monad is a monoid in the category of endofunctors")
+
+- Week 3 (Jan 26 -- Jan 29)
+  - Likely no lecture Jan 30
+  - Lectures will mostly consist of special topics and applications (order TBD), probably including:
     - Category Theory in Deep Learning
     - Intro to Topos Theory / Toquos Theory
     - Intro to Homotopy Type Theory
     - David Spivak's ideas
+    - Connections to philosophy
 - Recommended problem sets
   - One per week
-  - One or two problems (some with multiple parts) from each lecture
-  - Problems relating to a lecture will be released later that day
+  - One or two problems (some with multiple parts) from each lecture, for a total of 5-10 problems
+  - Problems relating to a lecture will be written on the blackboard at the end of lecture and will be compiled at the end of the week on this document in the Exercises sections
 
 == What is Category Theory?
 Consider the following mathematical objects:
@@ -127,7 +133,7 @@ We can now consider categories themselves as objects and functors as morphisms b
 
 == Exercises
 
-All of the exercises require answering with a proof for a fully complete answer.
+All of the exercises require answering with a proof for a fully complete answer, but an intuitive justification is good enough if your main goal is to learn the intuition of category theory rather than the entire subject.
 
 - Prove that for the category of sets, the map $Q -> S times T$ in the definition of the product is unique.
 - Do all categories have at least one product?
