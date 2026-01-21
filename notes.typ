@@ -19,13 +19,12 @@ Max Misterka
   - Jan 20: Intro to Algebraic Topology and Homological Algebra (including applications of category theory)
   - Jan 21: Lec 5 continued
   - Jan 22: Yoneda Lemma; Enriched and Higher Category Theory
-  - Jan 23: Category Theory in Haskell ("a monad is a monoid in the category of endofunctors")
+  - Jan 23: Intro to Topos Theory
 
-- Week 3 (Jan 26 -- Jan 29)
-  - Likely no lecture Jan 30
+- Week 3 (Jan 26 -- Jan 30)
+  - Jan 26: Category Theory in Haskell ("a monad is a monoid in the category of endofunctors")
   - Lectures will mostly consist of special topics and applications (order TBD), probably including:
     - Category Theory in Deep Learning
-    - Intro to Topos Theory / Toquos Theory
     - Intro to Homotopy Type Theory
     - David Spivak's ideas
     - Connections to philosophy
