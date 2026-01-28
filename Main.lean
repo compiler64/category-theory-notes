@@ -526,15 +526,14 @@ def coyonedaCoend' [Functor F] [LawfulFunctor F] (x : F α) : Coend (Coyo F α) 
 /-
 ## Applicative functors and monads
 
-Lean is a purely functional programming language, so functions must only depend on their arguments and have no access to the outside world. Then how can we do IO or have mutable state? The solution is to encode a function's side effects into the return type of the function.
+Motivation: functors are great, but how can we `<$>` a multi-argument function? We need a functor but with an additional feature.
 -/
 
--- Motivation: mapping multi-argument functions
-#simp (some 3).map (· * ·)
+#simp (· * ·) <$> (some 3)
 
 #eval (· * ·) <$> (some 3) <*> (some 4)
 
--- Applicative functors, which are functors where we can also map multi-argument functions
+-- Applicative functors
 #check Applicative
 #check LawfulApplicative
 
@@ -558,19 +557,20 @@ instance [Applicative F] [LawfulApplicative F] [Applicative G] [LawfulApplicativ
 
 -- TODO: Lax monoidal functors
 
--- Monads, AKA "warm fuzzy things"
-#check Monad
--- The monad laws
-#check LawfulMonad
+/-
+Lean is a purely functional programming language, so functions must only depend on their arguments and have no access to the outside world. For instance, a function `f : ℕ → ℕ` isn't allowed to have side effects like printing out "Hello, world!" or throwing exceptions.
 
-def one_over (x : ℚ) : Option ℚ :=
+Then how can we do IO or have mutable state in Lean? The solution is to encode a function's side effects into the return type of the function. For instance, if `f` can throw exceptions, its type signature instead becomes `ℕ → Except String ℕ`.
+-/
+
+def one_over (x : ℚ) : Except String ℚ :=
   if x = 0 then
-    none -- Division by 0 is undefined
+    .error "Division by 0 is undefined"
   else
-    some <| 1 / x
+    .ok <| 1 / x
 
 #eval one_over 2
--- Oops! Can't feed an `Option` into `one_over`.
+-- Oops! Can't feed an `Except` into `one_over`.
 #eval one_over (one_over 2)
 
 /-
@@ -580,6 +580,11 @@ def one_over (x : ℚ) : Option ℚ :=
 
 Solution: `>>=`, which enables us to "shove" a `F α` into a function `α → F β`.
 -/
+
+-- Monads, AKA "warm fuzzy things"
+#check Monad
+-- The monad laws
+#check LawfulMonad
 
 #eval one_over 2 >>= one_over
 
@@ -808,7 +813,13 @@ theorem bind_join_equiv [Monad M] [LawfulMonad M] : (bindFromJoin (M := M) (join
 theorem bind_join_equiv' [E : EndofunctorMonoid M] : joinFromBind (bindFromJoin E.join) x = E.join x := by
   simp
 
--- Wait, not so fast! There's a subtle problem: universes. In Lean, monads can be from `Type u → Type v`, while monoids have to be from `Type u → Type u` in order to compose the monoid with itself. If `u > v`, then we can instead define
+/-
+Wait, not so fast! There's a subtle problem: universes.
+
+Consider the definition of functors in Lean, which functions from `Type u → Type v`. However, the category theory definition of an endofunctor requires mapping all of the category Lean, so we need our functor to be universe polymorphic so that it's defined on inputs in any universe. Using this restricted definition of a functor, the rest of our proof goes through, except only universe polymorphic monads end up corresponding to monoids in the category of endofunctors.
+
+We can also view each universe `u` of Lean as its own category Lean.{u} and drop the universe polymorphism requirement. Then monads from `Type u → Type u` correspond exactly with monoids in the category of Lean.{u} endofunctors. The problem is monads from `Type u → Type v`, since the category of functors from Lean.{u} to Lean.{v} does not have an obvious tensor product. I think if `u > v`, we can define `f ⨂ g := f ∘ PLift ∘ g` using `PLift` to lift the output of `g` from universe `v` to `u`, but I'm not sure what to do in the case when `u < v`. If you have any ideas, I'd love to hear about it.
+-/
 
 -- TODO: Monads and adjunctions
 
