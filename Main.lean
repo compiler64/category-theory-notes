@@ -140,6 +140,12 @@ private theorem false : False :=
   let f := fun h ↦ down h h
   f (up f)
 
+/-
+Universes in Lean are weird. For instance, for two universe levels `u` and `v`, `max u v` is only guaranteed to be at least as large as `u` and `v`, but could be larger! https://leanprover-community.github.io/mathlib4_docs/Mathlib/Logic/UnivLE.html#UnivLE
+
+However, we do know that `UnivLE` is a total preorder: https://leanprover-community.github.io/mathlib4_docs/Mathlib/SetTheory/Cardinal/UnivLE.html#univLE_total
+-/
+
 end Paradox
 
 
@@ -816,10 +822,21 @@ theorem bind_join_equiv' [E : EndofunctorMonoid M] : joinFromBind (bindFromJoin 
 /-
 Wait, not so fast! There's a subtle problem: universes.
 
-Consider the definition of functors in Lean, which functions from `Type u → Type v`. However, the category theory definition of an endofunctor requires mapping all of the category Lean, so we need our functor to be universe polymorphic so that it's defined on inputs in any universe. Using this restricted definition of a functor, the rest of our proof goes through, except only universe polymorphic monads end up corresponding to monoids in the category of endofunctors.
+Consider the definition of functors in Lean, which functions from `Type u → Type v`. However, the category theory definition of an endofunctor requires mapping all of the category Lean, so we need our functor to be universe polymorphic so that it's defined on inputs in any universe. For instance, `List` works for an input type in any universe `u` and returns a type that's also in universe `u`. Using this restricted definition of a functor, the rest of our proof goes through, except only universe polymorphic monads end up corresponding to monoids in the category of endofunctors.
 
 We can also view each universe `u` of Lean as its own category Lean.{u} and drop the universe polymorphism requirement. Then monads from `Type u → Type u` correspond exactly with monoids in the category of Lean.{u} endofunctors. The problem is monads from `Type u → Type v`, since the category of functors from Lean.{u} to Lean.{v} does not have an obvious tensor product. I think if `u > v`, we can define `f ⨂ g := f ∘ PLift ∘ g` using `PLift` to lift the output of `g` from universe `v` to `u`, but I'm not sure what to do in the case when `u < v`. If you have any ideas, I'd love to hear about it.
 -/
+
+-- An example of a monad that I don't know how to view categorically yet
+abbrev Bad (_ : Type u) : Type v := PUnit
+
+@[simp]
+instance : Monad Bad where
+  pure _ := ()
+  bind x _ := x
+
+instance : LawfulMonad Bad :=
+  LawfulMonad.mk' Bad (by simp) (by simp) (by simp) (by simp)
 
 -- TODO: Monads and adjunctions
 
