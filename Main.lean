@@ -368,11 +368,15 @@ instance [Profunctor P] [Profunctor Q] : Profunctor (CoendCompose P Q) where
 A natural transformation is a function between two functors that satisfies a naturality condition. Intuitively, a natural transformation "moves" data from one "container" to another.
 -/
 
--- Type of a natural transformation (without the naturality condition)
+/-- Type of a natural transformation (without the naturality condition) -/
 abbrev NaturalType.{u} (F : Type u → Type v) (G : Type u → Type w) :=
   {α : Type u} → F α → G α
 
-/-- The naturality condition, which intuitively states that "moving" data is simply just a move and does not meaningfully change it -/
+/--
+The naturality condition, which intuitively states that "moving" data is simply just a move and does not meaningfully change it
+
+TODO: Use a subtype?
+-/
 class Natural F [Functor F] [LawfulFunctor F] G [Functor G] [LawfulFunctor G] (η : NaturalType F G) where
   naturality (f : α → β) (x : F α) : f <$> (η x) = η (f <$> x)
 
@@ -476,8 +480,59 @@ theorem yoneda_lemma' (x : F α) [Functor F] [LawfulFunctor F] : yoneda (yoneda'
 /-
 Intuitively, using some `x : F α`, we can determine what `η` does when specialized to type `α`, and the behavior of `η` on other types is fully determined because it's parametrically polymorphic.
 
-There's a very similar theorem for contravariant functors.
+Another nice property of the Yoneda isomorphism is that it's natural in both `α` and `F` when we view both sides as functors.
 -/
+
+/-- Subtype for natural transformations -/
+abbrev NaturalSub F [Functor F] [LawfulFunctor F] G [Functor G] [LawfulFunctor G] :=
+  { η : NaturalType F G // {α β : Type _} → (f : α → β) → (x : F α) → f <$> (η x) = η (f <$> x) }
+
+/-- The set of natural transformations between the hom-functor and `F` is a functor in `α` -/
+@[simp]
+instance [Functor F] [LawfulFunctor F] : Functor (fun α ↦ NaturalSub (α → ·) F) where
+  map f g :=
+    ⟨fun h ↦ g.val (h ∘ f), fun h x ↦ g.prop h (x ∘ f)⟩
+
+instance [Functor F] [LawfulFunctor F] : LawfulFunctor (fun α ↦ NaturalSub (α → ·) F) where
+  map_const := by solve_by_elim
+  id_map := by simp
+  comp_map g h := by simp [Function.comp_assoc]
+
+/-- The Yoneda isomorphism is natural in `α` -/
+def yoneda_natural_α [Functor F] [LawfulFunctor F] : NaturalSub (fun α ↦ NaturalSub (α → ·) F) F :=
+  ⟨(yoneda ·.val), fun f η ↦ by simp [yoneda, η.prop]⟩
+
+/-- Functor from the category of Lean endofunctors to Lean -/
+class EndofunctorFunctor (F : (Type u → Type v) → Type w) where
+  map : {α β : Type u → Type v} → ({ε : Type u} → α ε → β ε) → F α → F β
+  id_map (x : F α) : map id x = x
+  comp_map {α β γ : Type u → Type v} (g : {ε : Type u} → α ε → β ε) (h : {ε : Type u} → β ε → γ ε) (x : F α) : map (h ∘ g) x = map h (map g x)
+
+@[simp]
+instance : EndofunctorFunctor (fun (F : Type u → Type v) ↦ F α) where
+  map f x := f x
+  id_map := by simp
+  comp_map := by simp
+
+/-- The set of natural transformations between the hom-functor and `F` is a functor in `F` from the category of Lean endofunctors to Lean -/
+@[simp]
+instance (α : Type u) : EndofunctorFunctor (fun (F : Type u → Type v) ↦ NaturalType (α → ·) F) where
+  map f g := f ∘ g
+  id_map := by simp
+  comp_map g h := by simp [Function.comp_assoc]
+
+abbrev NaturalSub' (F : (Type u → Type v) → Type w) [EndofunctorFunctor F] (G : (Type u → Type v) → Type w) [EndofunctorFunctor G] :=
+  { η : {α : Type u → Type v} → F α → G α // {α β : Type u → Type v} → (f : {ε : Type u} → α ε → β ε) → (x : F α) → EndofunctorFunctor.map f (η x) = η (EndofunctorFunctor.map f x) }
+
+/--
+The Yoneda isomorphism is natural in `F`
+
+I didn't use `yoneda` since that function requires the input to be a functor, but the implementation here is the same.
+-/
+def yoneda_natural_F : NaturalSub' (fun F ↦ NaturalType (α → ·) F) (· α) :=
+  ⟨(· id), by simp⟩
+
+-- There's a very similar theorem for contravariant functors.
 
 /-- Coyoneda forward map -/
 def coyoneda (η : NaturalType (· → α) F) [Contrafunctor F] : F α :=
