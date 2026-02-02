@@ -487,7 +487,11 @@ Another nice property of the Yoneda isomorphism is that it's natural in both `α
 abbrev NaturalSub F [Functor F] [LawfulFunctor F] G [Functor G] [LawfulFunctor G] :=
   { η : NaturalType F G // {α β : Type _} → (f : α → β) → (x : F α) → f <$> (η x) = η (f <$> x) }
 
-/-- The set of natural transformations between the hom-functor and `F` is a functor in `α` -/
+/--
+The set of natural transformations between the hom-functor and `F` is a functor in `α`
+
+Exercise: Expand the function type for `(fun α ↦ NaturalSub (α → ·) F)` and show that it is covariant, not contravariant.
+-/
 @[simp]
 instance [Functor F] [LawfulFunctor F] : Functor (fun α ↦ NaturalSub (α → ·) F) where
   map f g :=
@@ -532,6 +536,9 @@ I didn't use `yoneda` since that function requires the input to be a functor, bu
 def yoneda_natural_F : NaturalSub' (fun F ↦ NaturalType (α → ·) F) (· α) :=
   ⟨(· id), by simp⟩
 
+-- Surprisingly, the Yoneda lemma has a few practical applications, such as continuation-passing style. `yoneda (F := Id)` has the type signature `{β} → (α → β) → β`, which is a function that takes a callback. The Yoneda lemma implies that any type `α` can instead be replaced by that function instead.
+#simp [NaturalType] fun (α : Type*) ↦ NaturalType (α → ·) Id
+
 -- There's a very similar theorem for contravariant functors.
 
 /-- Coyoneda forward map -/
@@ -554,8 +561,7 @@ theorem coyoneda_lemma (η : NaturalType (· → α) F) [Contrafunctor F] [N : C
 theorem coyoneda_lemma' (x : F α) [Contrafunctor F] : coyoneda (coyoneda' x) = x := by
   simp [coyoneda, coyoneda', Contrafunctor.id_contramap]
 
--- Surprisingly, the Yoneda lemma has a few practical applications, such as continuation-passing style. `yoneda (F := Id)` has the type signature `{β} → (α → β) → β`, which is a function that takes a callback. The Yoneda lemma implies that any type `α` can instead be replaced by that function instead.
-#simp [NaturalType] fun (α : Type*) ↦ NaturalType (α → ·) Id
+-- Exercise: Prove that the Coyoneda lemma is natural in `F` and `α`.
 
 -- TODO: We can also formulate the Yoneda lemma using profunctors, ends, and coends
 def Yo F [Functor F] [LawfulFunctor F] (α x y : Type u) := (α → x) → F y
