@@ -113,7 +113,7 @@ namespace Paradox
 
 -- The same proof works for any type in `Type`, not just `Unit`
 -- Uncomment this line to prove false
-axiom bad : (α : Type) × α ↪ Unit
+-- axiom bad : (α : Type) × α ↪ Unit
 
 /-- An injective function from sets of `Unit` to `Unit` (internally, a `Set α` is an `α → Prop` predicate for set membership) -/
 noncomputable def k (P : Set Unit) : Unit :=
