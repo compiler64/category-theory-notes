@@ -106,48 +106,35 @@ def prod_distrib_exp {α : Type u} : (α → (β × γ)) ≃ (α → β) × (α 
 
 You might have noticed the `Type u` in some of those previous examples. In Lean, `2 : ℕ : Type : Type 1 : Type 2 : Type 3`, and so on, where each level of the hierarchy is called a universe. However, if we had `Type : Type`, then that would cause Girard's paradox (a variant of Russell's paradox).
 
-We can't actually assign `Type` a different type using an axiom, but we can add a bad axiom that says there's an injective function from a sigma (dependent product) type in `Type 1` to some type in `Type`. (Thanks to Aaron Liu and Paul Reichert on the Lean Zulip for this proof.)
+We can't actually assign `Type` a different type, but we can assume there's a bad injective function from a sigma (dependent product) type in `Type 1` to some type in `Type`. Intuitively, this sigma type is "too big" to fit in something in `Type`. (Thanks to Aaron Liu and Paul Reichert on the Lean Zulip for this proof.)
 -/
 
-namespace Paradox
-
--- The same proof works for any type in `Type`, not just `Unit`
--- Uncomment this line to prove false
--- axiom bad : (α : Type) × α ↪ Unit
-
-/-- An injective function from sets of `Unit` to `Unit` (internally, a `Set α` is an `α → Prop` predicate for set membership) -/
-noncomputable def k (P : Set Unit) : Unit :=
-  bad ⟨Set Unit, P⟩
-
-/-- `k` is injective because the sigma constructor and `bad` are injective -/
-lemma k_injective : k.Injective :=
-  fun _ _ hab ↦ eq_of_heq (Sigma.mk.inj (bad.injective hab)).2
-
-/-- This is like the set of sets that don't contain themselves -/
-def Q : Set Unit :=
-  { b : Unit | ∃ P, k P = b ∧ b ∉ P }
-
-/-- If `k Q ∈ Q`, then there exists `P` with `k P = k Q` and `k Q ∉ P`, but `k` is injective so `P = Q` and `k Q ∉ Q` -/
-lemma down (h : k Q ∈ Q) : k Q ∉ Q := by
-  obtain ⟨P, hP⟩ := h
-  exact (k_injective hP.1) ▸ hP.2
-
-/-- If `k Q ∉ Q` then choose `P := Q` so `k Q ∈ Q` holds by definition -/
-lemma up (h : k Q ∉ Q) : k Q ∈ Q :=
-  ⟨Q, rfl, h⟩
-
-/-- Now use a diagonalization argument (alternatively, we can use the law of excluded middle) -/
-theorem false : False :=
+def girard (α : Type) (bad : (β : Type) × β ↪ α) : False := by
+  -- An injective function from sets of `α` to `α` (internally, a `Set α` is an `α → Prop` predicate for set membership)
+  let k (P : Set α) : α := bad ⟨Set α, P⟩
+  -- `k` is injective because the sigma constructor and `bad` are injective
+  have k_injective : k.Injective :=
+    fun _ _ hab ↦ eq_of_heq (Sigma.mk.inj (bad.injective hab)).2
+  -- Now we have an injective function `k` from `Set α → α` (intuitively this is like a function from the power set to a set) which violates `Function.cantor_injective k`
+  -- Here's how to manually finish the proof
+  -- This is like the set of sets that don't contain themselves
+  let Q := { b : α | ∃ P, k P = b ∧ b ∉ P }
+  -- If `k Q ∈ Q`, then there exists `P` with `k P = k Q` and `k Q ∉ P`, but `k` is injective so `P = Q` and `k Q ∉ Q`
+  have down (h : k Q ∈ Q) : k Q ∉ Q := by
+    obtain ⟨P, hP⟩ := h
+    exact (k_injective hP.1) ▸ hP.2
+  -- If `k Q ∉ Q` then choose `P := Q` so `k Q ∈ Q` holds by definition
+  have up (h : k Q ∉ Q) : k Q ∈ Q :=
+    ⟨Q, rfl, h⟩
+  -- Now use a diagonalization argument (alternatively, we can use the law of excluded middle)
   let f := fun h ↦ down h h
-  f (up f)
+  exact f (up f)
 
 /-
 Universes in Lean are weird. For instance, for two universe levels `u` and `v`, `max u v` is only guaranteed to be at least as large as `u` and `v`, but could be larger! https://leanprover-community.github.io/mathlib4_docs/Mathlib/Logic/UnivLE.html#UnivLE
 
 However, we do know that `UnivLE` is a total preorder: https://leanprover-community.github.io/mathlib4_docs/Mathlib/SetTheory/Cardinal/UnivLE.html#univLE_total
 -/
-
-end Paradox
 
 
 /-
