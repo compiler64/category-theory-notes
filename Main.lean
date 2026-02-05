@@ -111,33 +111,33 @@ We can't actually assign `Type` a different type using an axiom, but we can add 
 
 namespace Paradox
 
--- Uncomment these two lines to prove false
--- axiom Bad : Type
--- axiom bad : (α : Type) × α ↪ Bad
+-- The same proof works for any type in `Type`, not just `Unit`
+-- Uncomment this line to prove false
+axiom bad : (α : Type) × α ↪ Unit
 
-/-- An injective function from `Bad` predicates to `Bad` -/
-noncomputable def k (P : Bad → Prop) : Bad :=
-  bad ⟨Bad → Prop, P⟩
+/-- An injective function from sets of `Unit` to `Unit` (internally, a `Set α` is an `α → Prop` predicate for set membership) -/
+noncomputable def k (P : Set Unit) : Unit :=
+  bad ⟨Set Unit, P⟩
 
 /-- `k` is injective because the sigma constructor and `bad` are injective -/
 lemma k_injective : k.Injective :=
   fun _ _ hab ↦ eq_of_heq (Sigma.mk.inj (bad.injective hab)).2
 
-/-- This is kind of like the set of sets that don't contain itself -/
-def Q (b : Bad) : Prop :=
-  ∃ P, k P = b ∧ ¬P b
+/-- This is like the set of sets that don't contain themselves -/
+def Q : Set Unit :=
+  { b : Unit | ∃ P, k P = b ∧ b ∉ P }
 
-/-- If `Q (k Q)`, then there exists `P` with `k P = k Q` and `¬P (k Q)`, but `k` is injective so `P = Q` -/
-lemma down (h : Q (k Q)) : ¬Q (k Q) := by
+/-- If `k Q ∈ Q`, then there exists `P` with `k P = k Q` and `k Q ∉ P`, but `k` is injective so `P = Q` and `k Q ∉ Q` -/
+lemma down (h : k Q ∈ Q) : k Q ∉ Q := by
   obtain ⟨P, hP⟩ := h
   exact (k_injective hP.1) ▸ hP.2
 
-/-- If `¬Q (k Q)` then choose `P := Q` so `Q (k Q)` holds by definition -/
-lemma up (h : ¬Q (k Q)) : Q (k Q) :=
+/-- If `k Q ∉ Q` then choose `P := Q` so `k Q ∈ Q` holds by definition -/
+lemma up (h : k Q ∉ Q) : k Q ∈ Q :=
   ⟨Q, rfl, h⟩
 
 /-- Now use a diagonalization argument (alternatively, we can use the law of excluded middle) -/
-private theorem false : False :=
+theorem false : False :=
   let f := fun h ↦ down h h
   f (up f)
 
