@@ -106,7 +106,7 @@ def prod_distrib_exp {α : Type u} : (α → (β × γ)) ≃ (α → β) × (α 
 
 You might have noticed the `Type u` in some of those previous examples. In Lean, `2 : ℕ : Type : Type 1 : Type 2 : Type 3`, and so on, where each level of the hierarchy is called a universe. However, if we had `Type : Type`, then that would cause Girard's paradox (a variant of Russell's paradox).
 
-We can't actually assign `Type` a different type in Lean, not even with an axiom, but instead we can assume that there's an injective function from `Type 1` to `Type` and try to get a contradiction. Basically, we're trying to fit `Type` (which lives in `Type 1`) into the universe `Type`. The code below assumes something slightly more general, namely that if there's an injective function from `Type (u + 1)` or higher to `Type u`.
+We can't actually assign `Type` a different type in Lean, not even with an axiom, but instead we can assume that there's an injective function from `Type 1` to `Type` and derive a contradiction. Basically, we're trying to fit `Type` (which lives in `Type 1`) into the universe `Type`. The code below proves something slightly more general, namely that if there's an injective function from `Type (u + 1)` or higher to `Type u`, then we can get a contradiction.
 -/
 
 def girard (f : Type (max (u + 1) v) ↪ Type u) : False := by
