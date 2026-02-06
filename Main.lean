@@ -106,27 +106,43 @@ def prod_distrib_exp {α : Type u} : (α → (β × γ)) ≃ (α → β) × (α 
 
 You might have noticed the `Type u` in some of those previous examples. In Lean, `2 : ℕ : Type : Type 1 : Type 2 : Type 3`, and so on, where each level of the hierarchy is called a universe. However, if we had `Type : Type`, then that would cause Girard's paradox (a variant of Russell's paradox).
 
-We can't actually assign `Type` a different type, but we can assume there's a bad injective function from a sigma (dependent product) type in `Type 1` to some type in `Type`. Intuitively, this sigma type is "too big" to fit in something in `Type`. (Thanks to Aaron Liu and Paul Reichert on the Lean Zulip for this proof.)
+We can't actually assign `Type` a different type in Lean, not even with an axiom, but instead we can assume that there's an injective function from `Type 1` to `Type` and try to get a contradiction. Basically, we're trying to fit `Type` (which lives in `Type 1`) into the universe `Type`. The code below assumes something slightly more general, namely that if there's an injective function from `Type (u + 1)` or higher to `Type u`.
 -/
 
-def girard (α : Type) (bad : (β : Type) × β ↪ α) : False := by
-  -- An injective function from sets of `α` to `α` (internally, a `Set α` is an `α → Prop` predicate for set membership)
-  let k (P : Set α) : α := bad ⟨Set α, P⟩
-  -- `k` is injective because the sigma constructor and `bad` are injective
-  have k_injective : k.Injective :=
-    fun _ _ hab ↦ eq_of_heq (Sigma.mk.inj (bad.injective hab)).2
-  -- Now we have an injective function `k` from `Set α → α` (intuitively this is like a function from the power set to a set) which violates `Function.cantor_injective k`
-  -- Here's how to manually finish the proof
+def girard (f : Type (max (u + 1) v) ↪ Type u) : False := by
+  -- Let `g` be the inverse of `f`, where `g x` is any arbitrary value if `f` doesn't map anything to `x`
+  let g := f.toFun.invFun
+  -- `g` is surjective because `f` is injective
+  have hg : g.Surjective := by
+    intro a
+    use f.toFun a
+    simp [g, Function.invFun]
+  -- Now we can use `g` to construct a sigma type (dependent pair)
+  let T := Sigma g
+  -- Some `U : Type u` must map to `Set T`
+  obtain ⟨U, hU⟩ := hg (Set T)
+  -- This function is like mapping a power set of `T` to `T` itself
+  let k (s : Set T) : T :=
+    -- If the first element of the dependent pair is `U`, then the second element must have type `h U`, which conveniently is `Set T`
+    -- So, we can use `s` for the second element
+    ⟨U, cast hU.symm s⟩
+  -- `k` is injective because each pair has a different `s`
+  have hk : k.Injective := by
+    intro s t _
+    have : cast hU (k s).2 = cast hU (k t).2 := by congr
+    simpa [k]
+  -- Now we have an injective `k` from `Set T → T` which violates `Function.cantor_injective k` in mathlib
+  -- We can also manually finish the proof using a diagonalization argument
   -- This is like the set of sets that don't contain themselves
-  let Q := { b : α | ∃ P, k P = b ∧ b ∉ P }
+  let Q := { b : T | ∃ P, k P = b ∧ b ∉ P }
   -- If `k Q ∈ Q`, then there exists `P` with `k P = k Q` and `k Q ∉ P`, but `k` is injective so `P = Q` and `k Q ∉ Q`
   have down (h : k Q ∈ Q) : k Q ∉ Q := by
     obtain ⟨P, hP⟩ := h
-    exact (k_injective hP.1) ▸ hP.2
+    exact (hk hP.1) ▸ hP.2
   -- If `k Q ∉ Q` then choose `P := Q` so `k Q ∈ Q` holds by definition
   have up (h : k Q ∉ Q) : k Q ∈ Q :=
     ⟨Q, rfl, h⟩
-  -- Now use a diagonalization argument (alternatively, we can use the law of excluded middle)
+  -- We can either use the law of excluded middle, or do something trippy
   let f := fun h ↦ down h h
   exact f (up f)
 
