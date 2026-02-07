@@ -23,8 +23,8 @@ Max Misterka
 
 - Week 3 (Jan 28 -- Jan 30)
   - Jan 26: canceled due to snow
-  - Jan 27: canceled due to teacher availability
-  - At some point: Category Theory in Haskell ("a monad is a monoid in the category of endofunctors")
+  - Jan 27: Functors and Yoneda in Lean
+  - Jan 28: Monads in Lean ("a monad is a monoid in the category of endofunctors")
   - Lectures will mostly consist of special topics and applications (order TBD), possibly including:
     - Category Theory in Deep Learning
     - Intro to Homotopy Type Theory
