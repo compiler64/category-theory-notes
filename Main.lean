@@ -192,9 +192,10 @@ instance : LawfulFunctor List where
   comp_map := by simp
 
 /-- Hom-functor in self-enriched category -/
-@[simp]
 instance (α : Type u) : Functor (α → ·) where
   map f g := f ∘ g
+
+attribute [simp] Functor.map
 
 instance (α : Type u) : LawfulFunctor (α → ·) where
   map_const := by solve_by_elim
@@ -222,6 +223,8 @@ public class Contrafunctor (F : Type u → Type v) where
 /-- This is not standard notation but just something I made up -/
 infixr:100 " <¥> " => Contrafunctor.contramap
 
+attribute [simp] Contrafunctor.contramap
+
 -- Intuitively, `<$>` turns a "producer of α" into a "producer of β" while `<¥>` turns a "consumer of α" into a "consumer of β".
 
 /-- Some useful lemmas -/
@@ -234,7 +237,6 @@ lemma Contrafunctor.contramap_comp_contramap [Contrafunctor F] (g : α → β) (
   funext fun _ ↦ (comp_contramap _ _ _).symm
 
 /-- The other kind of hom-functor is contravariant -/
-@[simp]
 instance (α : Type u) : Contrafunctor (· → α) where
   contramap f g := g ∘ f
   id_contramap := by simp
@@ -260,7 +262,6 @@ Since functors map Lean to Lean, we can compose two functors to get a new functo
 -/
 
 /-- Composition of two functors of same variance is a functor -/
-@[simp]
 instance [Functor F] [Functor G] : Functor (F ∘ G) where
   map f x := Functor.map (f := F) (f <$> ·) x
 
@@ -269,7 +270,6 @@ instance [Functor F] [LawfulFunctor F] [Functor G] [LawfulFunctor G] : LawfulFun
   id_map := by simp
   comp_map f g x := by simp; rfl
 
-@[simp]
 instance [Contrafunctor F] [Contrafunctor G] : Functor (F ∘ G) where
   map f x := Contrafunctor.contramap (F := F) (Contrafunctor.contramap f) x
 
@@ -282,13 +282,11 @@ instance [Contrafunctor F] [Contrafunctor G] : LawfulFunctor (F ∘ G) where
 #synth LawfulFunctor (List ∘ Option)
 
 /-- Composition of functors of opposite variance is a contravariant functor -/
-@[simp]
 instance [Functor F] [LawfulFunctor F] [Contrafunctor G] : Contrafunctor (F ∘ G) where
   contramap f x := Functor.map (f := F) (f <¥> ·) x
   id_contramap := by simp [Contrafunctor.id_contramap]
   comp_contramap := by simp [Contrafunctor.comp_contramap]
 
-@[simp]
 instance [Contrafunctor F] [Functor G] [LawfulFunctor G] : Contrafunctor (F ∘ G) where
   contramap f x := Contrafunctor.contramap (F := F) (f <$> ·) x
   id_contramap := by
@@ -495,7 +493,6 @@ The set of natural transformations between the hom-functor and `F` is a functor 
 
 Exercise: Expand the function type for `(fun α ↦ NaturalSub (α → ·) F)` and show that it is covariant, not contravariant.
 -/
-@[simp]
 instance [Functor F] [LawfulFunctor F] : Functor (fun α ↦ NaturalSub (α → ·) F) where
   map f g :=
     ⟨fun h ↦ g.val (h ∘ f), fun h x ↦ g.prop h (x ∘ f)⟩
@@ -515,14 +512,12 @@ class EndofunctorFunctor (F : (Type u → Type v) → Type w) where
   id_map (x : F α) : map id x = x
   comp_map {α β γ : Type u → Type v} (g : {ε : Type u} → α ε → β ε) (h : {ε : Type u} → β ε → γ ε) (x : F α) : map (h ∘ g) x = map h (map g x)
 
-@[simp]
 instance : EndofunctorFunctor (fun (F : Type u → Type v) ↦ F α) where
   map f x := f x
   id_map := by simp
   comp_map := by simp
 
 /-- The set of natural transformations between the hom-functor and `F` is a functor in `F` from the category of Lean endofunctors to Lean -/
-@[simp]
 instance (α : Type u) : EndofunctorFunctor (fun (F : Type u → Type v) ↦ NaturalType (α → ·) F) where
   map f g := f ∘ g
   id_map := by simp
@@ -537,7 +532,7 @@ The Yoneda isomorphism is natural in `F`
 I didn't use `yoneda` since that function requires the input to be a functor, but the implementation here is the same.
 -/
 def yoneda_natural_F : NaturalSub' (fun F ↦ NaturalType (α → ·) F) (· α) :=
-  ⟨(· id), by simp⟩
+  ⟨(· id), by simp [EndofunctorFunctor.map]⟩
 
 -- Surprisingly, the Yoneda lemma has a few practical applications, such as continuation-passing style. `yoneda (F := Id)` has the type signature `{β} → (α → β) → β`, which is a function that takes a callback. The Yoneda lemma implies that any type `α` can instead be replaced by that function instead.
 #simp [NaturalType] fun (α : Type*) ↦ NaturalType (α → ·) Id
@@ -609,14 +604,15 @@ Motivation: functors are great, but how can we `<$>` a multi-argument function? 
 #check LawfulApplicative
 
 /-- Composition of two applicatives is an applicative -/
-@[simp]
 instance [Applicative F] [Applicative G] : Applicative (F ∘ G) where
   pure x := pure (f := F) (pure x)
   seq f x := Seq.seq (f := F) ((· <*> ·) <$> f) x
 
+attribute [simp] Pure.pure Seq.seq
+
 instance [Applicative F] [LawfulApplicative F] [Applicative G] [LawfulApplicative G] : LawfulApplicative (F ∘ G) where
-  seqLeft_eq := by simp
-  seqRight_eq := by simp
+  seqLeft_eq := by simp [SeqLeft.seqLeft]
+  seqRight_eq := by simp [SeqRight.seqRight]
   pure_seq := by simp [pure_seq]
   map_pure := by simp
   seq_pure := by simp
@@ -812,7 +808,7 @@ class EndofunctorMonoid M extends Functor M, LawfulFunctor M where
   \   /
    M α
   -/
-  join_pure : (join ∘ pure) x = x
+  join_pure (x : M α) : (join ∘ pure) x = x
   /-
   Adding another `M` layer on the inside with `pure` and then removing the outer layer with `join` does nothing:
     M α
@@ -822,7 +818,7 @@ class EndofunctorMonoid M extends Functor M, LawfulFunctor M where
     M α
   (When using <$>, Lean synthesizes the wrong type class instance here for some weird reason)
   -/
-  join_map_pure : (join ∘ (map pure ·)) x = x
+  join_map_pure (x : M α) : (join ∘ (map pure ·)) x = x
   /-
   Removing the inner `M` layer and then the outer layer is the same as removing the outer layer and then the inner layer:
   M (M (M α))  M (M (M α))
@@ -831,7 +827,7 @@ class EndofunctorMonoid M extends Functor M, LawfulFunctor M where
      \   /       \   /
       M α         M α
   -/
-  join_join : (join ∘ (map join ·)) x = (join ∘ join) x
+  join_join (x : M (M (M α))) : (join ∘ (map join ·)) x = (join ∘ join) x
 
 /-- We can implement `>>=` using a monoid's `join` function -/
 @[simp]
@@ -839,23 +835,24 @@ def bindFromJoin [EndofunctorMonoid M] (join : NaturalType (M ∘ M) M) (x : M �
   join (Functor.map (f := M) f x)
 
 /-- Any monoid corresponds to a monad -/
-@[simp]
 instance [EndofunctorMonoid M] : Monad M where
   pure := EndofunctorMonoid.pure
   bind := bindFromJoin EndofunctorMonoid.join
+
+attribute [simp] Bind.bind
 
 /-- A monoid in the category of endofunctors is a monad! -/
 instance [EndofunctorMonoid M] [J : Natural (M ∘ M) M EndofunctorMonoid.join] [P : Natural Id M EndofunctorMonoid.pure] : LawfulMonad M :=
   LawfulMonad.mk' M id_map
     (pure_bind := fun x f ↦ by
-      simpa [P.naturality, Functor.map] using EndofunctorMonoid.join_pure)
+      simpa [P.naturality, Functor.map] using EndofunctorMonoid.join_pure (f x))
     (bind_assoc := fun x f g ↦ by
       have := EndofunctorMonoid.join_join (x := (fun a ↦ Functor.map (f := M) g (f a)) <$> x)
       simp at this
       simp [J.naturality, ← this])
     (map_const := by simp [map_const])
     (bind_pure_comp := fun f x ↦ by
-      simpa using EndofunctorMonoid.join_map_pure (x := f <$> x))
+      simpa [← Functor.map_map] using EndofunctorMonoid.join_map_pure (f <$> x))
 
 /-- Similarly, we can implement `join` using `>>=` -/
 @[simp]
@@ -863,19 +860,24 @@ def joinFromBind [Monad M] (bind : {α β : Type u} → M α → (α → M β) �
   bind x id
 
 /-- A monad is a monoid in the category of endofunctors! -/
-@[simp]
 instance [Monad M] [LawfulMonad M] : EndofunctorMonoid M where
   pure := pure
   join := joinFromBind bind
-  join_pure := by simp
-  join_map_pure := by simp
+  join_pure x := by
+    simp
+    exact pure_bind x id
+  join_map_pure x := by
+    simp
+    exact bind_pure x
   join_join := by simp
 
 instance [Monad M] [LawfulMonad M] : Natural (M ∘ M) M EndofunctorMonoid.join :=
-  ⟨by simp⟩
+  ⟨by simp [EndofunctorMonoid.join]⟩
 
 instance [Monad M] [LawfulMonad M] : Natural Id M EndofunctorMonoid.pure :=
-  ⟨by simp [Functor.map]⟩
+  ⟨by
+    simp
+    exact map_pure⟩
 
 /-- `bindFromJoin` and `joinFromBind` form a bijection, so thus monads are the same thing as monoids in the category of endofunctors -/
 theorem bind_join_equiv [Monad M] [LawfulMonad M] : (bindFromJoin (M := M) (joinFromBind bind)) x f = bind x f := by
@@ -895,7 +897,6 @@ We can also view each universe `u` of Lean as its own category Lean.{u} and drop
 -- An example of a monad that I don't know how to view categorically yet
 abbrev Bad (_ : Type u) : Type v := PUnit
 
-@[simp]
 instance : Monad Bad where
   pure _ := ()
   bind x _ := x
