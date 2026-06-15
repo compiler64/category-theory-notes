@@ -18,7 +18,7 @@ Useful resources:
 Objects: Types
 Morphisms: Total functions
 
-In Lean, all functions are defined on all inputs and always terminate (unless we tag them as `partial` or `unsafe`). Haskell doesn't have this nice guarentee.
+In Lean and Haskell, not all functions are total (defined on all inputs) since they could run forever, so we restrict our category to only total functions. Lean does require the programmer to prove termination for certain function declarations, but this is to prevent proofs of false, not to ensure all functions are total. Lean has a `partial` keyword for declaring functions without needing a termination proof, but this is not infectious like `unsafe` so a regular function can call a `partial` function and thus no longer be total.
 
 Let's check that Lean is actually a category.
 
